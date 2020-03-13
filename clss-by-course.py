@@ -1,7 +1,7 @@
 import csv
 
 def formatSection(section):
-    return section.ljust(3)
+    return section.ljust(4)
 
 def formatMeetings(meetings):
     return meetings.ljust(20)
@@ -65,9 +65,11 @@ def main():
                                 room = row['Room'].split('; ')[0]
                             else:
                                 room = row['Room'].split('; ')[1]
-                            print('                                       %s   %s' % (formatMeetings(row['Meetings'].split(';')[1]), formatRoom(room)), file=f)
+                            print('                                        %s   %s' % (formatMeetings(row['Meetings'].split(';')[1]), formatRoom(room)), file=f)
                     if 'Also' in row['Cross-listings']:
-                        print('    %s                             %s' % (formatSection(row['Cross-listings'][-3:]), formatCap(linkedDict[row['Cross-listings'][5:]])), file=f)
+                        crossListing = row['Cross-listings'].split('-')
+                        sectionNo = crossListing[-1]
+                        print('    %s                             %s' % (formatSection(sectionNo), formatCap(linkedDict[row['Cross-listings'][5:]])), file=f)
 
 if __name__== "__main__":
   main()
