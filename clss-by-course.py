@@ -52,25 +52,34 @@ def main():
 
             print(semester, file=f)
             print(generated, file=f)
+            print('', file=f)
 
+            courseListing = ''
+            notCancelled = False
             for row in dictCSV:
                 if row[''] != '':
-                    print('',file=f)
-                    print(row[''], file=f)
+                    if notCancelled:
+                        print(courseListing, file=f)
+                        courseListing = ''
+                        notCancelled = False
+                    courseListing = row[''] + '\n'
                 else:
                     if 'Cancelled' not in row['Status']:
+                        notCancelled = True
                         if 'See' not in row['Cross-listings']:
-                            print('    %s  %s  %s  %s  %s' % (formatSection(row['Section #']), formatInstructor(row['Instructor']), formatCap(row['Section Cap Enrollment']), formatMeetings(row['Meetings'].split('; ')[0]), formatRoom(row['Room'].split(';')[0])), file=f )
+                            courseListing = courseListing + '    {}  {}  {}  {}  {}\n'.format(formatSection(row['Section #']), formatInstructor(row['Instructor']), formatCap(row['Section Cap Enrollment']), formatMeetings(row['Meetings'].split('; ')[0]), formatRoom(row['Room'].split(';')[0]))
                             if '; ' in row['Meetings']:
                                 if ';' not in row['Room']:
                                     room = row['Room'].split('; ')[0]
                                 else:
                                     room = row['Room'].split('; ')[1]
-                                print('                                        %s   %s' % (formatMeetings(row['Meetings'].split(';')[1]), formatRoom(room)), file=f)
+                                courseListing = courseListing + '                                        {}   {}\n'.format(formatMeetings(row['Meetings'].split(';')[1]), formatRoom(room))
                         if 'Also' in row['Cross-listings']:
                             crossListing = row['Cross-listings'].split('-')
                             sectionNo = crossListing[-1]
-                            print('    %s                             %s' % (formatSection(sectionNo), formatCap(linkedDict[row['Cross-listings'][5:]])), file=f)
+                            courseListing = courseListing + '    {}                             {}\n'.format(formatSection(sectionNo), formatCap(linkedDict[row['Cross-listings'][5:]]))
+            if notCancelled:
+                print(courseListing, file=f)
 
 if __name__== "__main__":
   main()
