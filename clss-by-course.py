@@ -1,4 +1,5 @@
 import csv
+import textwrap
 
 def formatSection(section):
     return section.ljust(4)
@@ -21,6 +22,17 @@ def formatCap(cap):
 def formatCrossList(crossList):
     return crossList.ljust(20)
 
+def formatComments(wantComments, wrapper, printed, internal):
+    if wantComments:
+        comments = ''
+        if printed != '':
+            comments = comments + wrapper.fill('WebAdvisor Comments: ' + printed) + '\n'
+        if internal != '':
+            comments = comments + wrapper.fill('Comments to Registrar: ' + internal.replace('\n', ' ')) + '\n'
+        return comments
+    else:
+        return ''
+    
 def getLinkedSections(csvfile):
     csvfile.seek(0)
     readCSV = csv.reader(csvfile, delimiter=',')
@@ -30,14 +42,15 @@ def getLinkedSections(csvfile):
 
     linkedDict = {}
     for row in dictCSV:
-        if row[''] is '' and 'See' in row['Cross-listings']:
+        if row[''] == '' and 'See' in row['Cross-listings']:
             linkedDict[row['Course'] + "-" + row['Section #']] = row['Section Cap Enrollment']
 
     return linkedDict
 
 def main():
     with open('export.csv') as csvfile:
-
+        comments = True
+        wrapper = textwrap.TextWrapper(width = 70, initial_indent = '      ', subsequent_indent = '        ')
         linkedDict = getLinkedSections(csvfile)
 
         csvfile.seek(0)
@@ -52,6 +65,8 @@ def main():
 
             print(semester, file=f)
             print(generated, file=f)
+            if comments:
+                print("With Internal Comments and Printed Comments", file=f)
             print('', file=f)
 
             courseListing = ''
@@ -74,10 +89,12 @@ def main():
                                 else:
                                     room = row['Room'].split('; ')[1]
                                 courseListing = courseListing + '                                        {}   {}\n'.format(formatMeetings(row['Meetings'].split(';')[1]), formatRoom(room))
+                            courseListing = courseListing + formatComments(comments, wrapper, row['Printed Comments#1'], row['Internal Comments'])
                         if 'Also' in row['Cross-listings']:
                             crossListing = row['Cross-listings'].split('-')
                             sectionNo = crossListing[-1]
                             courseListing = courseListing + '    {}                             {}\n'.format(formatSection(sectionNo), formatCap(linkedDict[row['Cross-listings'][5:]]))
+                            courseListing = courseListing + formatComments(comments, wrapper, row['Printed Comments#1'], row['Internal Comments'])
             if notCancelled:
                 print(courseListing, file=f)
 
