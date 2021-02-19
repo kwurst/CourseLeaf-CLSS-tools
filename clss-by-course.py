@@ -25,9 +25,9 @@ def formatCrossList(crossList):
 def formatComments(wantComments, wrapper, printed, internal):
     if wantComments:
         comments = ''
-        if printed != '':
+        if printed != None and printed != '':
             comments = comments + wrapper.fill('WebAdvisor Comments: ' + printed) + '\n'
-        if internal != '':
+        if internal != None and internal != '':
             comments = comments + wrapper.fill('Comments to Registrar: ' + internal.replace('\n', ' ')) + '\n'
         return comments
     else:
