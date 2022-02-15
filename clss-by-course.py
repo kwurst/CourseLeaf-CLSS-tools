@@ -22,11 +22,13 @@ def formatCap(cap):
 def formatCrossList(crossList):
     return crossList.ljust(20)
 
-def formatComments(wantComments, wrapper, printed, internal):
+def formatComments(wantComments, wrapper, internal, printed1, printed2):
     if wantComments:
         comments = ''
-        if printed != None and printed != '':
-            comments = comments + wrapper.fill('WebAdvisor Comments: ' + printed) + '\n'
+        if printed1 != None and printed1 != '':
+            comments = comments + wrapper.fill('WebAdvisor Comments: ' + printed1) + '\n'
+        if printed2 != None and printed2 != '':
+            comments = comments + wrapper.fill('WebAdvisor Comments: ' + printed2) + '\n'
         if internal != None and internal != '':
             comments = comments + wrapper.fill('Comments to Registrar: ' + internal.replace('\n', ' ')) + '\n'
         return comments
@@ -89,12 +91,12 @@ def main():
                                 else:
                                     room = row['Room'].split('; ')[1]
                                 courseListing = courseListing + '                                        {}   {}\n'.format(formatMeetings(row['Meetings'].split(';')[1]), formatRoom(room))
-                            courseListing = courseListing + formatComments(comments, wrapper, row['Printed Comments#1'], row['Internal Comments'])
+                            courseListing = courseListing + formatComments(comments, wrapper, row['Internal Comments'], row['Printed Comments#1'], row['Printed Comments#2'])
                         if 'Also' in row['Cross-listings']:
                             crossListing = row['Cross-listings'].split('-')
                             sectionNo = crossListing[-1]
                             courseListing = courseListing + '    {}                             {}\n'.format(formatSection(sectionNo), formatCap(linkedDict[row['Cross-listings'][5:]]))
-                            courseListing = courseListing + formatComments(comments, wrapper, row['Printed Comments#1'], row['Internal Comments'])
+                            courseListing = courseListing + formatComments(comments, wrapper, row['Internal Comments'], row['Printed Comments#1'], row['Printed Comments#2'])
             if notCancelled:
                 print(courseListing, file=f)
 
