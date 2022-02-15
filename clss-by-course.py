@@ -8,7 +8,10 @@ def formatMeetings(meetings):
     return meetings.ljust(20)
 
 def formatInstructor(instructor):
-    return instructor[:instructor.find(' (')].ljust(25)
+    if instructor.find(' (') < 0:
+        return instructor.ljust(25)
+    else:
+        return instructor[:instructor.find(' (')].ljust(25)
 
 def formatRoom(room):
     if '-' in room:
@@ -22,15 +25,21 @@ def formatCap(cap):
 def formatCrossList(crossList):
     return crossList.ljust(20)
 
-def formatComments(wantComments, wrapper, internal, printed1, printed2):
+def formatComments(wantComments, wrapper, coursetype, internal, printed1, printed2):
     if wantComments:
         comments = ''
+        if coursetype != None and coursetype != '':
+            comments = comments + '    Course Types: ' + coursetype + '\n'
         if printed1 != None and printed1 != '':
-            comments = comments + wrapper.fill('WebAdvisor Comments: ' + printed1) + '\n'
+            comments = comments + '    WebAdvisor Comments:' + '\n'
+            comments = comments + wrapper.fill(printed1) + '\n'
+
         if printed2 != None and printed2 != '':
-            comments = comments + wrapper.fill('WebAdvisor Comments: ' + printed2) + '\n'
+            comments = comments + wrapper.fill(printed2) + '\n'
         if internal != None and internal != '':
-            comments = comments + wrapper.fill('Comments to Registrar: ' + internal.replace('\n', ' ')) + '\n'
+            comments = comments + '    Comments to Registrar:' + '\n'
+            comments = comments + wrapper.fill(internal.replace('\n', ' ')) + '\n'
+
         return comments
     else:
         return ''
@@ -52,7 +61,7 @@ def getLinkedSections(csvfile):
 def main():
     with open('export.csv') as csvfile:
         comments = True
-        wrapper = textwrap.TextWrapper(width = 70, initial_indent = '      ', subsequent_indent = '        ')
+        wrapper = textwrap.TextWrapper(width = 80, initial_indent = '        ', subsequent_indent = '          ')
         linkedDict = getLinkedSections(csvfile)
 
         csvfile.seek(0)
@@ -91,12 +100,12 @@ def main():
                                 else:
                                     room = row['Room'].split('; ')[1]
                                 courseListing = courseListing + '                                        {}   {}\n'.format(formatMeetings(row['Meetings'].split(';')[1]), formatRoom(room))
-                            courseListing = courseListing + formatComments(comments, wrapper, row['Internal Comments'], row['Printed Comments#1'], row['Printed Comments#2'])
+                            courseListing = courseListing + formatComments(comments, wrapper, row['Types'], row['Internal Comments'], row['Printed Comments#1'], row['Printed Comments#2'])
                         if 'Also' in row['Cross-listings']:
                             crossListing = row['Cross-listings'].split('-')
                             sectionNo = crossListing[-1]
                             courseListing = courseListing + '    {}                             {}\n'.format(formatSection(sectionNo), formatCap(linkedDict[row['Cross-listings'][5:]]))
-                            courseListing = courseListing + formatComments(comments, wrapper, row['Internal Comments'], row['Printed Comments#1'], row['Printed Comments#2'])
+                            courseListing = courseListing + formatComments(comments, wrapper, row['Types'], row['Internal Comments'], row['Printed Comments#1'], row['Printed Comments#2'])
             if notCancelled:
                 print(courseListing, file=f)
 
